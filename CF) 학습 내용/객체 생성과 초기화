@@ -19,3 +19,4 @@ class Foo(object):
 s = Foo()
 print(s)
 
+![image](https://user-images.githubusercontent.com/91322621/177936135-00105d45-83d6-46cc-a2c9-8e37258b6dc7.png)
