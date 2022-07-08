@@ -27,3 +27,6 @@ CF) 객체 생성과 초기화
 
 05. Commmand Pattern Diagram
 ![image](https://user-images.githubusercontent.com/91322621/177975972-aa121e83-989b-4504-a2d8-c27f2d320658.png)
+
+05. Example of Command Pattern - 만능 버튼 클래스 다이어그램
+![image](https://user-images.githubusercontent.com/91322621/177976371-dd57a927-df66-4f3d-86d5-fbcc6be7d6b5.png)
