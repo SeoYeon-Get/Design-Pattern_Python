@@ -1,1 +1,156 @@
+* 전략(Strategy) 패턴
 
+1) 정의
+- 전략 == 알고리즘
+- 알고리즘군을 정의하고 각각을 캡슐화하여 교환해서 사용가능하게 한다.
+- 사용하는 클라이언트에 따라 알고리즘을 독립적으로 변경할 수 있다.
+
+2) 구현
+- 바뀌는 부분과 그렇지 않은 부분을 분리한다. 
+
+예시 코드) 
+
+- 객체 지향 관점
+
+from abc import ABC, abstractmethod
+from collections import namedtuple
+
+Customer = namedtuple('Customer', 'name fidelity')
+
+
+class LineItem:
+
+    def __init__(self, product, quantity, price):
+        self.product = product
+        self.quantity = quantity
+        self.price = price
+
+    def total(self):
+        return self.price * self.quantity
+
+
+class Order:  # the Context
+
+    def __init__(self, customer, cart, promotion=None):
+        self.customer = customer
+        self.cart = list(cart)
+        self.promotion = promotion
+
+    def total(self):
+        if not hasattr(self, '__total'):
+            self.__total = sum(item.total() for item in self.cart)
+        return self.__total
+
+    def due(self):
+        if self.promotion is None:
+            discount = 0
+        else:
+            discount = self.promotion.discount(self)
+        return self.total() - discount
+
+    def __repr__(self):
+        fmt = '<Order total: {:.2f} due: {:.2f}>'
+        return fmt.format(self.total(), self.due())
+
+
+class Promotion(ABC):  # the Strategy: an Abstract Base Class
+
+    @abstractmethod
+    def discount(self, order):
+        """Return discount as a positive dollar amount"""
+
+
+class FidelityPromo(Promotion):  # first Concrete Strategy
+    """5% discount for customers with 1000 or more fidelity points"""
+
+    def discount(self, order):
+        return order.total() * .05 if order.customer.fidelity >= 1000 else 0
+
+
+class BulkItemPromo(Promotion):  # second Concrete Strategy
+    """10% discount for each LineItem with 20 or more units"""
+
+    def discount(self, order):
+        discount = 0
+        for item in order.cart:
+            if item.quantity >= 20:
+                discount += item.total() * .1
+        return discount
+
+
+class LargeOrderPromo(Promotion):  # third Concrete Strategy
+    """7% discount for orders with 10 or more distinct items"""
+
+    def discount(self, order):
+        distinct_items = {item.product for item in order.cart}
+        if len(distinct_items) >= 10:
+            return order.total() * .07
+        return 0
+
+- 함수 지향 관점
+
+
+from collections import namedtuple
+
+Customer = namedtuple('Customer', 'name fidelity')
+
+
+class LineItem:
+
+    def __init__(self, product, quantity, price):
+        self.product = product
+        self.quantity = quantity
+        self.price = price
+
+    def total(self):
+        return self.price * self.quantity
+
+
+class Order:  # the Context
+
+    def __init__(self, customer, cart, promotion=None):
+        self.customer = customer
+        self.cart = list(cart)
+        self.promotion = promotion
+
+    def total(self):
+        if not hasattr(self, '__total'):
+            self.__total = sum(item.total() for item in self.cart)
+        return self.__total
+
+    def due(self):
+        if self.promotion is None:
+            discount = 0
+        else:
+            discount = self.promotion(self)  # <1>
+        return self.total() - discount
+
+    def __repr__(self):
+        fmt = '<Order total: {:.2f} due: {:.2f}>'
+        return fmt.format(self.total(), self.due())
+
+# <2>
+
+def fidelity_promo(order):  # <3>
+    """5% discount for customers with 1000 or more fidelity points"""
+    return order.total() * .05 if order.customer.fidelity >= 1000 else 0
+
+
+def bulk_item_promo(order):
+    """10% discount for each LineItem with 20 or more units"""
+    discount = 0
+    for item in order.cart:
+        if item.quantity >= 20:
+            discount += item.total() * .1
+    return discount
+
+
+def large_order_promo(order):
+    """7% discount for orders with 10 or more distinct items"""
+    distinct_items = {item.product for item in order.cart}
+    if len(distinct_items) >= 10:
+        return order.total() * .07
+    return 0
+
+
+코드 출처 : https://medium.com/humanscape-tech/%ED%8C%8C%EC%9D%B4%EC%8D%AC%EC%97%90%EC%84%9C%EC%9D%98-%ED%95%A8%EC%88%98-eca346a34dcf
