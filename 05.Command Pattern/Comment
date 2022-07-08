@@ -1,1 +1,68 @@
+* 커맨드(Command) 패턴
+
+1) 정의 및 특징
+- 특정 객체에 대한 커맨드(명령)를 객체화하여 커맨드 객체를 필요에 따라 처리하는 패턴
+- 요청(커맨드)을 객체의 형태로 캡슐화하여 커맨드 객체를 필요에 따라 처리하는 패턴
+- 여러 기능을 실행할 수 있도록 재사용성이 높은 클래스를 설계하는 패턴
+- 로그나 undo 기능을 지원함
+- 구체적인 기능을 직접 구현하는 대신 실행될 기능을 캡슐화해야 한다.
+
+2) 용어
+- 수신자(Receiver) : 행동을 하는 객체 -> 장치
+- 커맨드(Command) : 수신자의 정보 + 행동이 들어 있는 객체 -> 버튼의 행위
+- 발동자(Invoker) : 커맨드를 저장함 -> 버튼이 어떠한 행동을 할지 설정해주는 행위
+- 클라이언트(Client) : 커맨드 객체를 생성, 인보커를 통해 수신자에게 할 행동을 전달함 -> 리모컨
+
+3) 이점
+-  여러 기능을 실행할 수 있어 재사용성이 높음
+- 기능이 수정될 때 주체 객체의 코드 수정 없이 기능에 대한 클래스만 변경할 수 있어 유연함
+
+예시 코드) 
+
+from abc import ABCMeta, abstractmethod
+
+# Receiver
+class Light:
+    def on(self):
+        print("Light On")
+
+    def off(self):
+        print("Light Off")
+
+# Command
+class Command:
+    __metaclass__ = ABCMeta
+
+    @abstractmethod
+    def execute(self):
+        pass
+
+    @abstractmethod
+    def undo(self):
+        pass
+
+# Concrete Command
+class LightOnCommand(Command):
+    def __init__(self, light):
+        self.light = light
+
+    def execute(self):
+        self.light.on()
+
+    def undo(self):
+        self.light.off()
+
+# Invoker
+class SimpleRemoteControl:
+    def SetCommand(self, command):
+        self.slot = command
+
+    def ButtonPressed(self):
+        self.slot.execute()
+
+if __name__ == '__main__':
+    controller = SimpleRemoteControl()
+    controller.SetCommand(LightOnCommand(Light()))
+    controller.ButtonPressed()
+
 
