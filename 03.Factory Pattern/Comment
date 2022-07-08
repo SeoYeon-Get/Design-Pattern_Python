@@ -1,1 +1,116 @@
+* 팩토리 패턴
 
+1) 정의 및 특징
+- 객체를 만들어내는 부분을 서브 클래스에 위임하는 패턴
+- 구체적인 클래스에 의존하지 않고 서로 연관되거나 의존적인 객체들의 조합을 만드는 인터페이스를 제공하는 패턴
+- 객체를 만들어 반환하는 함수를 생성자 대신 팩토리 형태로 제공하여 초기화 과정을 외부에서 보지 못하게 숨기고 반환 타입을 제어하는 패턴
+
+
+2) 이점
+- 객체 생성과 클래스 구현을 나눠 상호 의존도를 줄일 수 있음-> 느슨한 결합
+- 클라이언트가 객체를 생성하는 클래스를 알 필요가 없다. Client는 생성하려는 객체 클래스 구현과 상관없이 사용할 수 있다.  (객체를 생성하기 위해 client가 알아야할 정보가 최소화됨)
+- 코드를 수정하지 않고 팩토리에 새로운 클래스를 추가할 수 있으며 이미 생성된 객체를 팩토리가 재활용할 수 있다.
+
+3) 종류 
+- 팩토리 메소드 패턴(Factory Method Pattern) 
+- 추상 팩토리 패턴(Abstract Factory Pattern)
+
+4) 용도
+- 객체가 생성되거나 구성, 표현되는 방식과 무관하게 시스템을 독립적으로 만들고자 할 때
+- 여러 제품군 중 하나를 선택해서 시스템을 설정해야 하고 한번 구성한 제품을 다른 것으로 대체할 수 있을 때
+- 객체 구현이 아닌 인터페이스를 노출시키고 싶을 때
+
+예시코드)
+
+from abc import ABCMeta, abstractmethod
+
+
+# (abstract)Product
+class Keyboard(metaclass=ABCMeta):
+    @abstractmethod
+    def type_words(self):
+        pass
+
+
+class Mouse(metaclass=ABCMeta):
+    @abstractmethod
+    def click_left(self):
+        pass
+
+
+# concreteProduct
+class K380(Keyboard):
+    def type_words(self):
+        print('...type with k380 manufactured by Logi')
+
+
+class MagicKeyborad(Keyboard):
+    def type_words(self):
+        print('...type with magic keyboard manufactured by Apple')
+
+
+class G102(Mouse):
+    def click_left(self):
+        print('...click g102 manufactured by Logi')
+
+
+class MagicMouse2(Mouse):
+    def click_left(self):
+        print('...click magic mouse2 manufactured by Apple')
+
+
+# (abstract)Factory
+class ComputerFactory(metaclass=ABCMeta):
+    @abstractmethod
+    def createKeyboard(self):
+        pass
+
+    @abstractmethod
+    def createMouse(self):
+        pass
+
+
+# concreteFactory
+class LogiComputerFactory(ComputerFactory):
+    def createKeyboard(self):
+        return K380()
+
+    def createMouse(self):
+        return G102()
+
+
+class AppleComputerFactory(ComputerFactory):
+    def createKeyboard(self):
+        return MagicKeyborad()
+
+    def createMouse(self):
+        return MagicMouse2()
+
+
+# client
+class Client():
+    def use(self, company):
+        """company는 사용자 요구에 따라 변경"""
+
+        # product를 생산할 factory 생성
+        if company == 'logi':
+            factory = LogiComputerFactory()
+        elif company == 'apple':
+            factory = AppleComputerFactory()
+        else:
+            return
+
+        # product 생산 (객체 생성)
+        keyboard = factory.createKeyboard()
+        mouse = factory.createMouse()
+
+        # 생산된 product를 사용
+        keyboard.type_words()
+        mouse.click_left()
+
+
+if __name__ == '__main__':
+    client = Client()
+    client.use('logi')
+    print()
+    client.use('apple')
