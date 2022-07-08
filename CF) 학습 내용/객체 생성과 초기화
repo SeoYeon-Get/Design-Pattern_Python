@@ -1,0 +1,21 @@
+* 객체 생성과 초기화
+
+- __new__, __init__ : 객체의 생성과 초기화에 사용되는 메서드
+- __new__ : 클래스에 정의되어 있지 않아도 object 클래스의 __new__ 가 호출되어 객체가 생성됨.
+- 생성된 객체에 속성(property)을 추가할 때 __init__이 호출됨.
+
+예시 코드)
+
+class Foo(object):
+    def __new__(cls, *args, **kwargs): 
+        print("__new__ is called\n")   #__new__ 메서드 재정의(오버라이드)
+        instance = super().__new__(cls) #Foo 클래스의 객체를 생성해주기 위하여 object 클래스의 __new__메서드를 호출. cls == Foo
+        return instance #생성된 객체 리턴
+
+    def __init__(self):
+        print("__init__ is called\n")
+
+
+s = Foo()
+print(s)
+
