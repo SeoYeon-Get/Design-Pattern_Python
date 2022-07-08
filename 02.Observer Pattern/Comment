@@ -1,1 +1,131 @@
+* 옵저버 패턴
+
+1) 정의 및 특징
+- 하나의 관찰 대상 - 여러 개의 관찰자 구조가 필요할 때 쓰는 패턴이다. 
+- 한 객체(Subject)의 상태가 변경이 되면 해당 객체를 의존하고 있는 모든 객체(Observer)에게 의존하고 있는 객체의 상태가 변경되었다고 알려주는 디자인 패턴
+- Subject : 관찰 대상이 되는 객체. 자신을 관찰하는 옵저버들을 append한 리스트로 옵저버를 관리(attach, detach, notify)함.
+- Observer : Subject를 관찰하는 객체. Subject가 notify를 호출하면 Observer의 update가 호출됨.
+- 일대다 관계
+
+2) 사용 예시 : 이벤트 핸들러
+
+3) 종류 : 푸시(push)와 풀(pull) 이 있음.
+
+예시 코드) 코드 출처: https://brownbears.tistory.com/555
+
+-푸시 방식
+
+public interface Observer {
+    void update(Video video);
+}
+
+public class SubscriberA implements Observer{
+    public void update(Video video) {
+        System.out.println("SubscriberA 영상 알림 ");
+    }
+}
+
+public class SubscriberB implements Observer {
+    public void update(Video video) {
+        System.out.println("SubscriberB 영상 알림 ");
+    }
+}
+
+public class SubscriberC implements Observer {
+    public void update(Video video) {
+        System.out.println("SubscriberC 영상 알림 ");
+    }
+}
+
+public interface Subject {
+    void attach(Observer observer);
+    void detach(Observer observer);
+    void notifyObserver();
+}
+
+public class Youtube implements Subject {
+    private List<Observer> observers;
+    private Video video;
+
+    public Youtube(List<Observer> observers) {
+        this.observers = observers;
+    }
+
+    @Override
+    public void attach(Observer observer) {
+        observers.add(observer);
+    }
+
+    @Override
+    public void detach(Observer observer) {
+        observers.remove(observer);
+    }
+
+    @Override
+    public void notifyObserver() {
+        for (Observer observer: observers) {
+            observer.update(video);
+        }
+    }
+
+    public void newVideo(Video video) {
+        this.video = video;
+        notifyObserver();
+    }
+}
+
+
+
+- 풀 방식
+
+public interface Observer {
+    void update(Subject subject);
+}
+
+public class SubscriberA implements Observer{
+    public void update(Subject subject) {
+        System.out.println("SubscriberA 영상 알림 ");
+        if (subject instanceof Youtube) {
+            Youtube youtube = (Youtube) subject;
+            Video video = youtube.getVideo();
+        }
+    }
+}
+
+// 이하 B, C 동일
+
+public class Youtube implements Subject {
+    private List<Observer> observers;
+    private Video video;
+
+    public Youtube(List<Observer> observers) {
+        this.observers = observers;
+    }
+
+    @Override
+    public void attach(Observer observer) {
+        observers.add(observer);
+    }
+
+    @Override
+    public void detach(Observer observer) {
+        observers.remove(observer);
+    }
+
+    @Override
+    public void notifyObserver() {
+        for (Observer observer: observers) {
+            observer.update(this);
+        }
+    }
+
+    public void newVideo(Video video) {
+        this.video = video;
+        notifyObserver();
+    }
+
+    public Video getVideo() {
+        return video;
+    }
+}
 
