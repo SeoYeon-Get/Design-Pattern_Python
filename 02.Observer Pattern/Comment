@@ -11,121 +11,113 @@
 
 3) 종류 : 푸시(push)와 풀(pull) 이 있음.
 
-예시 코드) 코드 출처: https://brownbears.tistory.com/555
+예시 코드) 코드 출처 : https://eomtttttt-develop.tistory.com/72
 
--푸시 방식
-
-public interface Observer {
-    void update(Video video);
-}
-
-public class SubscriberA implements Observer{
-    public void update(Video video) {
-        System.out.println("SubscriberA 영상 알림 ");
-    }
-}
-
-public class SubscriberB implements Observer {
-    public void update(Video video) {
-        System.out.println("SubscriberB 영상 알림 ");
-    }
-}
-
-public class SubscriberC implements Observer {
-    public void update(Video video) {
-        System.out.println("SubscriberC 영상 알림 ");
-    }
-}
-
-public interface Subject {
-    void attach(Observer observer);
-    void detach(Observer observer);
-    void notifyObserver();
-}
-
-public class Youtube implements Subject {
-    private List<Observer> observers;
-    private Video video;
-
-    public Youtube(List<Observer> observers) {
-        this.observers = observers;
-    }
-
-    @Override
-    public void attach(Observer observer) {
-        observers.add(observer);
-    }
-
-    @Override
-    public void detach(Observer observer) {
-        observers.remove(observer);
-    }
-
-    @Override
-    public void notifyObserver() {
-        for (Observer observer: observers) {
-            observer.update(video);
-        }
-    }
-
-    public void newVideo(Video video) {
-        this.video = video;
-        notifyObserver();
-    }
-}
-
-
-
-- 풀 방식
-
-public interface Observer {
-    void update(Subject subject);
-}
-
-public class SubscriberA implements Observer{
-    public void update(Subject subject) {
-        System.out.println("SubscriberA 영상 알림 ");
-        if (subject instanceof Youtube) {
-            Youtube youtube = (Youtube) subject;
-            Video video = youtube.getVideo();
-        }
-    }
-}
-
-// 이하 B, C 동일
-
-public class Youtube implements Subject {
-    private List<Observer> observers;
-    private Video video;
-
-    public Youtube(List<Observer> observers) {
-        this.observers = observers;
-    }
-
-    @Override
-    public void attach(Observer observer) {
-        observers.add(observer);
-    }
-
-    @Override
-    public void detach(Observer observer) {
-        observers.remove(observer);
-    }
-
-    @Override
-    public void notifyObserver() {
-        for (Observer observer: observers) {
-            observer.update(this);
-        }
-    }
-
-    public void newVideo(Video video) {
-        this.video = video;
-        notifyObserver();
-    }
-
-    public Video getVideo() {
-        return video;
-    }
-}
-
+import abc
+ 
+class Subject:
+  __metaclass__ = abc.ABCMeta
+ 
+  @abc.abstractmethod
+  def register_observer(self):
+    pass
+ 
+  @abc.abstractmethod
+  def remove_observer(self):
+    pass
+ 
+  @abc.abstractmethod
+  def notify_observer(self):
+    pass
+ 
+class Observer:
+  __metaclass__ = abc.ABCMeta
+ 
+  @abc.abstractmethod
+  def update(self):
+    pass
+ 
+class WeatherData(Subject):
+  def __init__(self):
+    self.observers = []
+    self.temperature = 0
+    self.humidity = 0
+    self.pressure = 0
+ 
+  def register_observer(self, observer):
+    self.observers.append(observer)
+ 
+  def remove_observer(self, observer):
+    self.observers.remove(observer)
+ 
+  def notify_observer(self):
+    for observer in self.observers:
+      observer.update(self.temperature, self.humidity, self.pressure)
+ 
+  def get_temperature(self):
+    return self.temperature
+ 
+  def get_humidity(self):
+    return self.humidity
+ 
+  def get_pressure(self):
+    return self.pressure
+ 
+  def measurements_changed(self):
+    self.notify_observer()
+ 
+  def set_measurements(self, temperature, humidity, pressure):
+    self.temperature = temperature
+    self.humidity = humidity
+    self.pressure = pressure
+    self.measurements_changed()
+ 
+class CurrentCondition(Observer):
+  def __init__(self, subject):
+    self.subject = subject
+    self.subject.register_observer(self)
+ 
+  def update(self, temperature, humidity, pressure):
+    self.temperature = temperature
+    self.humidity = humidity
+    self.pressure = pressure
+    self.display()
+ 
+  def remove(self):
+    self.subject.remove_observer(self)
+ 
+  def display(self):
+    print ('Current condition temp: %s hum: %s press: %s'
+           %(self.temperature, self.humidity, self.pressure))
+ 
+class StaticsDisplay(Observer):
+  def __init__(self, subject):
+    self.subject = subject
+    self.subject.register_observer(self)
+ 
+  def update(self, temperature, humidity, pressure):
+    self.temperature = temperature
+    self.humidity = humidity
+    self.pressure = pressure
+    self.display()
+ 
+  def remove(self):
+    self.subject.remove_observer(self)
+ 
+  def display(self):
+    print ('Static display temp: %s hum: %s press: %s'
+           %(self.temperature, self.humidity, self.pressure))
+ 
+print("###START####")
+ 
+weather_data = WeatherData()
+current_condition = CurrentCondition(weather_data)
+statics_display = StaticsDisplay(weather_data)
+ 
+weather_data.set_measurements(10, 50, 30)
+weather_data.set_measurements(20, 60, 40)
+ 
+print("###Remove static_display observer###")
+statics_display.remove()
+ 
+weather_data.set_measurements(1, 2, 3)
