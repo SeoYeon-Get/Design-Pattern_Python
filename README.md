@@ -4,15 +4,9 @@
 3. Factory Pattern
 4. Strategy Pattern 
 5. Command Pattern
-
-
-
-
-
-
-
-
-
+6. Decorator Pattern
+7. Proxy Pattern
+8. Compound Pattern - MVC(Model-View-Controller) Pattern
 
 
 
