@@ -17,7 +17,7 @@
 -  여러 기능을 실행할 수 있어 재사용성이 높음
 - 기능이 수정될 때 주체 객체의 코드 수정 없이 기능에 대한 클래스만 변경할 수 있어 유연함
 
-예시 코드) 
+예시 코드 1) 
 
 from abc import ABCMeta, abstractmethod
 
@@ -66,3 +66,50 @@ if __name__ == '__main__':
     controller.ButtonPressed()
 
 
+예시 코드 2) 
+
+from abc import ABCMeta, abstractmethod
+
+# Receiver
+class Light:
+    def on(self):
+        print("Light On")
+
+    def off(self):
+        print("Light Off")
+
+# Command
+class Command:
+    __metaclass__ = ABCMeta
+
+    @abstractmethod
+    def execute(self):
+        pass
+
+    @abstractmethod
+    def undo(self):
+        pass
+
+# Concrete Command
+class LightOnCommand(Command):
+    def __init__(self, light):
+        self.light = light
+
+    def execute(self):
+        self.light.on()
+
+    def undo(self):
+        self.light.off()
+
+# Invoker
+class SimpleRemoteControl:
+    def SetCommand(self, command):
+        self.slot = command
+
+    def ButtonPressed(self):
+        self.slot.execute()
+
+if __name__ == '__main__':
+    controller = SimpleRemoteControl()
+    controller.SetCommand(LightOnCommand(Light()))
+    controller.ButtonPressed()
