@@ -46,4 +46,4 @@ a = Americano()
 a_soy = Soy(a)
 
 print a_soy.get_description(), a_soy.cost()
-출처: https://itselfstory.tistory.com/entry/파이썬-데코레이터-디자인-패턴-Decorator-Pattern-in-Python [내 멋대로 IT:티스토리]
+
