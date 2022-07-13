@@ -153,4 +153,3 @@ def large_order_promo(order):
     return 0
 
 
-코드 출처 : https://medium.com/humanscape-tech/%ED%8C%8C%EC%9D%B4%EC%8D%AC%EC%97%90%EC%84%9C%EC%9D%98-%ED%95%A8%EC%88%98-eca346a34dcf
